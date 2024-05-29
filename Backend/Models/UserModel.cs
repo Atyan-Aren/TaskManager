@@ -1,5 +1,8 @@
-﻿namespace TaskManager.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TaskManager.Models
 {
+	[Table("User")]
 	public class UserModel : BaseModel
 	{
 		public string Name { get; set; }
