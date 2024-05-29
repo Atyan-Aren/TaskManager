@@ -7,7 +7,7 @@ namespace TaskManager.Repository.DbContexts
 	public class ApplicationContext : DbContext
 	{
 		#region Properties: Public
-		public DbSet<IdentityUser> Users { get; set; }
+		public DbSet<UserModel> Users { get; set; }
 
 		#endregion
 

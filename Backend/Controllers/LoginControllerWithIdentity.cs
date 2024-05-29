@@ -4,8 +4,9 @@ using TaskManager.Models;
 
 namespace TaskManager.Controllers
 {
+	//TODO: ПЕРЕДЕЛАТЬ В ОБЩИЙ, сделать два хелпера для identity custom
 	[Route("Login")]
-	public class LoginController : Controller
+	public class LoginControllerWithIdentity : Controller
 	{
 		#region Fields
 
@@ -16,7 +17,7 @@ namespace TaskManager.Controllers
 
 		#region Constructors
 
-		public LoginController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+		public LoginControllerWithIdentity(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
