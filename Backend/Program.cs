@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TaskManager.Models;
-using TaskManager.Repository.DbContexts;
+using TaskManager.ServicesExtensions;
 
 namespace TaskManager
 {
@@ -10,22 +8,8 @@ namespace TaskManager
 		public static void Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
-
-			//TODO: Вынести
-			if (builder.Configuration.GetValue<string>("AuthorizationMethod") == "Identity")
-			{
-				builder.Services.AddDbContext<ApplicationContextWithIdentity>(options => 
-					options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
-
-				builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationContextWithIdentity>();
-			}
-			else if (builder.Configuration.GetValue<string>("AuthorizationMethod") == "Custom")
-			{
-				builder.Services.AddDbContext<ApplicationContext>(options =>
-					options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
-			}
-
-
+			
+			builder.Services.AddDBContextByConfig(builder.Configuration);
 			builder.Services.AddControllers();
 
 			var app = builder.Build();
@@ -37,7 +21,7 @@ namespace TaskManager
 			app.UseAuthorization();
 
 			app.MapControllers();
-			app.MapGet("/", (ApplicationContextWithIdentity db) => db.Users.ToList());
+			//app.MapGet("/", (ApplicationContextWithIdentity db) => db.Users.ToList());
 			app.Run();
 		}
 	}

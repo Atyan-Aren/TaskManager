@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TaskManager.Models;
+using TaskManager.Models.DBModels;
 
 namespace TaskManager.Repository.DbContexts
 {
-	public class ApplicationContext : DbContext
+    public class ApplicationContext : DbContext
 	{
 		#region Properties: Public
 		public DbSet<UserModel> Users { get; set; }
