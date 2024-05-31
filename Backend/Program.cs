@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using TaskManager.Interfaces.Services;
+using TaskManager.Repository.DbContexts;
+using TaskManager.Services;
 using TaskManager.ServicesExtensions;
 
 namespace TaskManager
@@ -21,6 +24,7 @@ namespace TaskManager
 			app.UseAuthorization();
 
 			app.MapControllers();
+			app.MapGet("/", (ApplicationContext db) => db.Users.ToList());
 			//app.MapGet("/", (ApplicationContextWithIdentity db) => db.Users.ToList());
 			app.Run();
 		}

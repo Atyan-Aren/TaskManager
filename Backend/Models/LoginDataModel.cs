@@ -1,9 +1,10 @@
 ﻿namespace TaskManager.Models
 {
-	public class LoginDataModel
+	public class LoginDataModel 
 	{
 		public string Username { get; set; }
 		public string Email { get; set; }
 		public string Password { get; set; }
+		public string TelegramNickname { get; set; }
 	}
 }
