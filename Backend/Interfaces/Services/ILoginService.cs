@@ -4,7 +4,7 @@ namespace TaskManager.Interfaces.Services
 {
 	public interface ILoginService
 	{
-		Task<bool> Login(LoginDataModel loginData);
-		Task<bool> Register(LoginDataModel loginData);
+		Task<bool> Login(LoginDataModel loginData, HttpContext httpContext);
+		Task<bool> Register(LoginDataModel loginData, HttpContext httpContext);
 	}
 }

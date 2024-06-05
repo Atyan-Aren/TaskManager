@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TaskManager.Interfaces.Services;
 using TaskManager.Models;
 using TaskManager.Models.DBModels;
@@ -25,9 +28,30 @@ namespace TaskManager.Services
 
 		#endregion
 
+		#region Methods: Private
+
+		private async Task Authenticate(UserModel user, HttpContext httpContext)
+		{
+			var claims = new List<Claim>
+			{
+				new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name),
+				new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
+			};
+			ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+			await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+		}
+
+		private async Task Logout(HttpContext httpContext)
+		{
+			await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+			//return RedirectToAction("Login", "Account");
+		}
+
+		#endregion
+
 		#region Methods: Public
 
-		public async Task<bool> Login(LoginDataModel loginData)
+		public async Task<bool> Login(LoginDataModel loginData, HttpContext httpContext)
 		{
 			var user = await _applicationContext.Users.FirstOrDefaultAsync(user => user.Email == loginData.Email && user.Name == loginData.Username);
 			if (user == null)
@@ -35,7 +59,7 @@ namespace TaskManager.Services
 			return _passwordService.PasswordIsEquals(loginData.Password, user.Password);
 		}
 
-		public async Task<bool> Register(LoginDataModel loginData)
+		public async Task<bool> Register(LoginDataModel loginData, HttpContext httpContext)
 		{
 			var userModel = new UserModel()
 			{
@@ -48,6 +72,7 @@ namespace TaskManager.Services
 			};
 			_applicationContext.Users.Add(userModel);
 			var insertedCount = await _applicationContext.SaveChangesAsync();
+			await Authenticate(userModel, httpContext);
 			return insertedCount > 0;
 		}
 

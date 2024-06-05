@@ -26,13 +26,13 @@ namespace TaskManager.Services
 
 		#region Methods: Public
 
-		public async Task<bool> Login(LoginDataModel loginData)
+		public async Task<bool> Login(LoginDataModel loginData, HttpContext httpContext)
 		{
 			var result = await _signInManager.PasswordSignInAsync(loginData.Username, loginData.Password, true, false);
 			return result.Succeeded;
 		}
 
-		public async Task<bool> Register(LoginDataModel loginData)
+		public async Task<bool> Register(LoginDataModel loginData, HttpContext httpContext)
 		{
 			var user = new IdentityUserModel() 
 			{
