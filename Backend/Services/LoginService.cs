@@ -30,7 +30,7 @@ namespace TaskManager.Services
 
 		#region Methods: Private
 
-		private async Task Authenticate(UserModel user, HttpContext httpContext)
+		private async void SignIn(UserModel user, HttpContext httpContext)
 		{
 			var claims = new List<Claim>
 			{
@@ -41,39 +41,82 @@ namespace TaskManager.Services
 			await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
 		}
 
-		private async Task Logout(HttpContext httpContext)
-		{
-			await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-			//return RedirectToAction("Login", "Account");
-		}
-
 		#endregion
 
 		#region Methods: Public
 
-		public async Task<bool> Login(LoginDataModel loginData, HttpContext httpContext)
+		public async Task<ServiceResult> Login(LoginDataModel loginData, HttpContext httpContext)
 		{
+			var result = new ServiceResult();
 			var user = await _applicationContext.Users.FirstOrDefaultAsync(user => user.Email == loginData.Email && user.Name == loginData.Username);
 			if (user == null)
-				return false;
-			return _passwordService.PasswordIsEquals(loginData.Password, user.Password);
+			{
+				result.Success = false;
+				result.Message = "Такого пользователя не существует";
+			}
+			else if (!_passwordService.PasswordIsEquals(loginData.Password, user.Password))
+			{
+				result.Success = false;
+				result.Message = "Неверный пароль";
+			}
+			else
+			{
+				result.Success = true;
+				SignIn(user, httpContext);
+			}
+			return result;
 		}
 
-		public async Task<bool> Register(LoginDataModel loginData, HttpContext httpContext)
+		public async Task<ServiceResult> Register(LoginDataModel loginData, HttpContext httpContext)
 		{
-			var userModel = new UserModel()
+			var result = new ServiceResult();
+			var user = await _applicationContext.Users.FirstOrDefaultAsync(user => user.Email == loginData.Email && user.Name == loginData.Username);
+			if (user != null)
 			{
-				Name = loginData.Username,
-				Email = loginData.Email,
-				Password = _passwordService.GenerateHashedPassword(loginData.Password),
-				TelegramNickname = loginData.TelegramNickname,
-				CreatedDate = DateTime.UtcNow,
-				UpdatedDate = DateTime.UtcNow,
-			};
-			_applicationContext.Users.Add(userModel);
-			var insertedCount = await _applicationContext.SaveChangesAsync();
-			await Authenticate(userModel, httpContext);
-			return insertedCount > 0;
+				result.Success = false;
+				result.Message = "Такой пользователь уже существует";
+			}
+			else
+			{
+				var userModel = new UserModel()
+				{
+					Name = loginData.Username,
+					Email = loginData.Email,
+					Password = _passwordService.GenerateHashedPassword(loginData.Password),
+					TelegramNickname = loginData.TelegramNickname,
+					CreatedDate = DateTime.UtcNow, // TODO: Autofill
+					UpdatedDate = DateTime.UtcNow,
+				};
+				_applicationContext.Users.Add(userModel);
+				var insertedCount = await _applicationContext.SaveChangesAsync();
+				if (insertedCount <= 0)
+				{
+					result.Success = false;
+					result.Message = "Не удалось зарегестрировать пользователья";
+				}
+				else
+				{
+					result.Success = true;
+					SignIn(userModel, httpContext);
+				}
+			}
+			return result;
+		}
+
+		public async Task<ServiceResult> Logout(HttpContext httpContext)
+		{
+			var result = new ServiceResult();
+			try
+			{
+				await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+				result.Success = true;
+			}
+			catch
+			{
+				result.Success = false;
+				result.Message = "Не удалось выйти из учетной записи";
+			}
+			return result;
 		}
 
 		#endregion

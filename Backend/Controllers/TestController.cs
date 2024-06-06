@@ -1,19 +1,34 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskManager.Models.DBModels;
+using TaskManager.Repository.DbContexts;
 
 namespace TaskManager.Controllers
 {
 	[Route("Test")]
 	public class TestController : Controller
 	{
+		private ApplicationContext _applicationContext;
+		public TestController(ApplicationContext applicationContext)
+		{
+			_applicationContext = applicationContext;
+		}
+
 		#region Methods: Public
 
 		[HttpGet]
-		[Authorize]
-		[Route("Test")]
-		public string Test()
+		[Route("GetUsers")]
+		public List<UserModel> GetUsers()
 		{
-			return "Arenchik is very beautiful";
+			return _applicationContext.Users.ToList();
+		}
+
+		[HttpGet]
+		[Authorize]
+		[Route("TEST")]
+		public string TEST()
+		{
+			return "Arenchik is so beautiful";
 		}
 
 		#endregion

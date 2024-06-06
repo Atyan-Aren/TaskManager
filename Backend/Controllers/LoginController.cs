@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Mvc;
 using TaskManager.Interfaces.Services;
 using TaskManager.Models;
 
@@ -29,16 +26,23 @@ namespace TaskManager.Controllers
 
 		[HttpPost]
 		[Route("Login")]
-		public async Task<bool> Login([FromBody]LoginDataModel loginData)
+		public async Task<ServiceResult> Login([FromBody]LoginDataModel loginData)
 		{
 			return await _loginService.Login(loginData, HttpContext);
 		}
 
 		[HttpPost]
 		[Route("Register")]
-		public async Task<bool> Register([FromBody]LoginDataModel loginData)
+		public async Task<ServiceResult> Register([FromBody]LoginDataModel loginData)
 		{
 			return await _loginService.Register(loginData, HttpContext);
+		}
+
+		[HttpPost]
+		[Route("Logout")]
+		public async Task<ServiceResult> Logout()
+		{
+			return await _loginService.Logout(HttpContext);
 		}
 
 		#endregion

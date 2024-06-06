@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
 using TaskManager.ServicesExtensions;
 
 namespace TaskManager
@@ -9,9 +8,10 @@ namespace TaskManager
 		{
 			var builder = WebApplication.CreateBuilder(args);
 			
-			builder.Services.AddDBContextByConfig(builder.Configuration);
-			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-				.AddCookie(options => options.LoginPath = new PathString("/Login/Login"));
+			builder.Services.GetServicesConfigurator(builder.Configuration)
+				.AddDBContext()
+				.AddAuthorizationServices();
+
 			builder.Services.AddControllers();
 
 			var app = builder.Build();
