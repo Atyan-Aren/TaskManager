@@ -2,8 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Interfaces.Services;
 using TaskManager.Interfaces;
-using TaskManager.Repository.DbContexts;
+using TaskManager.Repositories.DbContexts;
 using TaskManager.Services;
+using TaskManager.Interfaces.Repositories;
+using TaskManager.Models.DBModels;
+using TaskManager.Repositories;
 
 namespace TaskManager.ServicesConfigurators
 {
@@ -30,6 +33,7 @@ namespace TaskManager.ServicesConfigurators
 		
 		public IServicesConfigurator AddAuthorizationServices()
 		{
+			_services.AddScoped<IUserRepository<UserModel>, CustomUserRepository>();
 			_services.AddScoped<ILoginService, LoginService>();
 			_services.AddTransient<IPasswordService, PasswordService>();
 			_services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

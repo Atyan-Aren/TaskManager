@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Models.DBModels;
 
-namespace TaskManager.Repository.DbContexts
+namespace TaskManager.Repositories.DbContexts
 {
     public class ApplicationContext : DbContext
 	{

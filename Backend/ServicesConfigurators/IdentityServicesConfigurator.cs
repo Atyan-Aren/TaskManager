@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskManager.Interfaces.Services;
 using TaskManager.Interfaces;
 using TaskManager.Models.DBModels;
-using TaskManager.Repository.DbContexts;
+using TaskManager.Repositories.DbContexts;
 using TaskManager.Services;
 
 namespace TaskManager.ServicesConfigurators

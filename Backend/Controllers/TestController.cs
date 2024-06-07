@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Models.DBModels;
-using TaskManager.Repository.DbContexts;
+using TaskManager.Repositories.DbContexts;
 
 namespace TaskManager.Controllers
 {

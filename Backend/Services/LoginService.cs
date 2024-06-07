@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using TaskManager.Interfaces.Repositories;
 using TaskManager.Interfaces.Services;
 using TaskManager.Models;
 using TaskManager.Models.DBModels;
-using TaskManager.Repository.DbContexts;
 
 namespace TaskManager.Services
 {
@@ -13,16 +12,16 @@ namespace TaskManager.Services
 	{
 		#region Fields
 
-		private ApplicationContext _applicationContext;
+		private IUserRepository<UserModel> _userRepository;
 		private IPasswordService _passwordService;
 
 		#endregion
 
 		#region Constructors
 
-		public LoginService(ApplicationContext applicationContext, IPasswordService passwordService)
+		public LoginService(IUserRepository<UserModel> userRepository, IPasswordService passwordService)
 		{
-			_applicationContext = applicationContext;
+			_userRepository = userRepository;
 			_passwordService = passwordService;
 		}
 
@@ -48,7 +47,7 @@ namespace TaskManager.Services
 		public async Task<ServiceResult> Login(LoginDataModel loginData, HttpContext httpContext)
 		{
 			var result = new ServiceResult();
-			var user = await _applicationContext.Users.FirstOrDefaultAsync(user => user.Email == loginData.Email && user.Name == loginData.Username);
+			var user = await _userRepository.GetUserByUsername(loginData.Username);
 			if (user == null)
 			{
 				result.Success = false;
@@ -70,7 +69,7 @@ namespace TaskManager.Services
 		public async Task<ServiceResult> Register(LoginDataModel loginData, HttpContext httpContext)
 		{
 			var result = new ServiceResult();
-			var user = await _applicationContext.Users.FirstOrDefaultAsync(user => user.Email == loginData.Email && user.Name == loginData.Username);
+			var user = await _userRepository.GetUserByUsername(loginData.Username);
 			if (user != null)
 			{
 				result.Success = false;
@@ -87,17 +86,16 @@ namespace TaskManager.Services
 					CreatedDate = DateTime.UtcNow, // TODO: Autofill
 					UpdatedDate = DateTime.UtcNow,
 				};
-				_applicationContext.Users.Add(userModel);
-				var insertedCount = await _applicationContext.SaveChangesAsync();
-				if (insertedCount <= 0)
-				{
-					result.Success = false;
-					result.Message = "Не удалось зарегестрировать пользователья";
-				}
-				else
+				var success = await _userRepository.CreateUser(userModel);
+				if (success)
 				{
 					result.Success = true;
 					SignIn(userModel, httpContext);
+				}
+				else
+				{
+					result.Success = false;
+					result.Message = "Не удалось зарегестрировать пользователья";
 				}
 			}
 			return result;
