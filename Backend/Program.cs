@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+using TaskManager.Middlewares;
 using TaskManager.ServicesExtensions;
 
 namespace TaskManager
@@ -16,6 +18,7 @@ namespace TaskManager
 
 			var app = builder.Build();
 
+			app.UseMiddleware<GlobalExceptionMiddlware>();
 			app.UseRouting();
 			
 			//TODO: Non unterstandable

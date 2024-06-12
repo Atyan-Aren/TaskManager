@@ -35,79 +35,102 @@ namespace TaskManager.Services
 			{
 				new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name),
 				new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
+				new Claim(ClaimsIdentity.DefaultNameClaimType, user.TelegramNickname),
 			};
-			ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-			await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+			ClaimsIdentity claimsId = new ClaimsIdentity(claims, "TaskManagerCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+			await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsId));
 		}
 
-		#endregion
-
-		#region Methods: Public
-
-		public async Task<ServiceResult> Login(LoginDataModel loginData, HttpContext httpContext)
+		private async Task CheckUserIsNotExists(string username)
 		{
-			var result = new ServiceResult();
-			var user = await _userRepository.GetUserByUsername(loginData.Username);
-			if (user == null)
+            var user = await _userRepository.GetUserByUsername(username);
+            if (user != null)
+            {
+                throw new Exception("Такой пользователь уже существует");
+            }
+        }
+
+        private void CheckUserIsExists(UserModel user)
+        {
+            if (user == null)
+            {
+                throw new Exception("Такого пользователя не существует");
+            }
+        }
+
+		private void CheckPassword(string password, string userPassword)
+		{
+            if (!_passwordService.PasswordIsEquals(password, userPassword))
 			{
+                throw new Exception("Неверный пароль");
+            }
+
+        }
+
+        private UserModel CreateUserModel(LoginDataModel loginData)
+        {
+            var userModel = new UserModel()
+            {
+                Name = loginData.Username,
+                Email = loginData.Email,
+                Password = _passwordService.GenerateHashedPassword(loginData.Password),
+                TelegramNickname = loginData.TelegramNickname,
+                CreatedDate = DateTime.UtcNow, // TODO: Autofill
+                UpdatedDate = DateTime.UtcNow,
+            };
+            return userModel;
+        }
+
+        #endregion
+
+        #region Methods: Public
+
+        public async Task<ServiceResult> Login(LoginDataModel loginData, HttpContext httpContext)
+		{
+            var result = new ServiceResult() { Success = true };
+            //try
+			//{
+                var user = await _userRepository.GetUserByUsername(loginData.Username);
+
+				CheckUserIsExists(user);
+				CheckPassword(loginData.Password, user.Password);
+
+                SignIn(user, httpContext);
+            //}
+			//catch (Exception ex)
+			//{
 				result.Success = false;
-				result.Message = "Такого пользователя не существует";
-			}
-			else if (!_passwordService.PasswordIsEquals(loginData.Password, user.Password))
-			{
-				result.Success = false;
-				result.Message = "Неверный пароль";
-			}
-			else
-			{
-				result.Success = true;
-				SignIn(user, httpContext);
-			}
+				//result.Message = ex.Message;
+			//}
 			return result;
 		}
 
 		public async Task<ServiceResult> Register(LoginDataModel loginData, HttpContext httpContext)
 		{
-			var result = new ServiceResult();
-			var user = await _userRepository.GetUserByUsername(loginData.Username);
-			if (user != null)
+            var result = new ServiceResult() { Success = true };
+			try
 			{
-				result.Success = false;
-				result.Message = "Такой пользователь уже существует";
-			}
-			else
+                await CheckUserIsNotExists(loginData.Username);
+
+                var userModel = CreateUserModel(loginData);
+                await _userRepository.CreateUser(userModel);
+
+                SignIn(userModel, httpContext);
+            }
+			catch (Exception ex)
 			{
-				var userModel = new UserModel()
-				{
-					Name = loginData.Username,
-					Email = loginData.Email,
-					Password = _passwordService.GenerateHashedPassword(loginData.Password),
-					TelegramNickname = loginData.TelegramNickname,
-					CreatedDate = DateTime.UtcNow, // TODO: Autofill
-					UpdatedDate = DateTime.UtcNow,
-				};
-				var success = await _userRepository.CreateUser(userModel);
-				if (success)
-				{
-					result.Success = true;
-					SignIn(userModel, httpContext);
-				}
-				else
-				{
-					result.Success = false;
-					result.Message = "Не удалось зарегестрировать пользователья";
-				}
-			}
+                result.Success = false;
+                result.Message = ex.Message;
+            }
 			return result;
 		}
 
 		public async Task<ServiceResult> Logout(HttpContext httpContext)
 		{
-			var result = new ServiceResult();
+			var result = new ServiceResult() { Success = true };
 			try
 			{
 				await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-				result.Success = true;
 			}
 			catch
 			{
