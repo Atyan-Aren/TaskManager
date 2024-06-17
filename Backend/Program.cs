@@ -1,10 +1,9 @@
-using Microsoft.Extensions.DependencyInjection;
 using TaskManager.Middlewares;
 using TaskManager.ServicesExtensions;
 
 namespace TaskManager
 {
-	public class Program
+    public class Program
 	{
 		public static void Main(string[] args)
 		{

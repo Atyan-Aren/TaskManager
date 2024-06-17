@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
+using TaskManager.Exceptions;
 using TaskManager.Interfaces.Repositories;
 using TaskManager.Interfaces.Services;
 using TaskManager.Models;
@@ -43,102 +44,76 @@ namespace TaskManager.Services
 
 		private async Task CheckUserIsNotExists(string username)
 		{
-            var user = await _userRepository.GetUserByUsername(username);
-            if (user != null)
-            {
-                throw new Exception("Такой пользователь уже существует");
-            }
-        }
+			var user = await _userRepository.GetUserByUsername(username);
+			if (user != null)
+			{
+				throw new LoginException("Такой пользователь уже существует");
+			}
+		}
 
-        private void CheckUserIsExists(UserModel user)
-        {
-            if (user == null)
-            {
-                throw new Exception("Такого пользователя не существует");
-            }
-        }
+		private void CheckUserIsExists(UserModel user)
+		{
+			if (user == null)
+			{
+				throw new LoginException("Такого пользователя не существует");
+			}
+		}
 
 		private void CheckPassword(string password, string userPassword)
 		{
-            if (!_passwordService.PasswordIsEquals(password, userPassword))
+			if (!_passwordService.PasswordIsEquals(password, userPassword))
 			{
-                throw new Exception("Неверный пароль");
-            }
+				throw new LoginException("Неверный пароль");
+			}
 
-        }
+		}
 
-        private UserModel CreateUserModel(LoginDataModel loginData)
-        {
-            var userModel = new UserModel()
-            {
-                Name = loginData.Username,
-                Email = loginData.Email,
-                Password = _passwordService.GenerateHashedPassword(loginData.Password),
-                TelegramNickname = loginData.TelegramNickname,
-                CreatedDate = DateTime.UtcNow, // TODO: Autofill
-                UpdatedDate = DateTime.UtcNow,
-            };
-            return userModel;
-        }
-
-        #endregion
-
-        #region Methods: Public
-
-        public async Task<ServiceResult> Login(LoginDataModel loginData, HttpContext httpContext)
+		private UserModel CreateUserModel(LoginDataModel loginData)
 		{
-            var result = new ServiceResult() { Success = true };
-            //try
-			//{
-                var user = await _userRepository.GetUserByUsername(loginData.Username);
+			var userModel = new UserModel()
+			{
+				Name = loginData.Username,
+				Email = loginData.Email,
+				Password = _passwordService.GenerateHashedPassword(loginData.Password),
+				TelegramNickname = loginData.TelegramNickname,
+				CreatedDate = DateTime.UtcNow, // TODO: Autofill
+				UpdatedDate = DateTime.UtcNow,
+			};
+			return userModel;
+		}
 
-				CheckUserIsExists(user);
-				CheckPassword(loginData.Password, user.Password);
+		#endregion
 
-                SignIn(user, httpContext);
-            //}
-			//catch (Exception ex)
-			//{
-				result.Success = false;
-				//result.Message = ex.Message;
-			//}
-			return result;
+		#region Methods: Public
+
+		public async Task<ServiceResult> Login(LoginDataModel loginData, HttpContext httpContext)
+		{
+			var user = await _userRepository.GetUserByUsername(loginData.Username);
+			CheckUserIsExists(user);
+			CheckPassword(loginData.Password, user.Password);
+
+			SignIn(user, httpContext);
+
+			return new ServiceResult() { Success = true };
 		}
 
 		public async Task<ServiceResult> Register(LoginDataModel loginData, HttpContext httpContext)
 		{
-            var result = new ServiceResult() { Success = true };
-			try
-			{
-                await CheckUserIsNotExists(loginData.Username);
+			await CheckUserIsNotExists(loginData.Username);
 
-                var userModel = CreateUserModel(loginData);
-                await _userRepository.CreateUser(userModel);
+			var userModel = CreateUserModel(loginData);
+			await _userRepository.CreateUser(userModel);
 
-                SignIn(userModel, httpContext);
-            }
-			catch (Exception ex)
-			{
-                result.Success = false;
-                result.Message = ex.Message;
-            }
-			return result;
-		}
+			SignIn(userModel, httpContext);
+
+            return new ServiceResult() { Success = true };
+        }
 
 		public async Task<ServiceResult> Logout(HttpContext httpContext)
 		{
-			var result = new ServiceResult() { Success = true };
-			try
-			{
-				await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-			}
-			catch
-			{
-				result.Success = false;
-				result.Message = "Не удалось выйти из учетной записи";
-			}
-			return result;
-		}
+			await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return new ServiceResult() { Success = true };
+        }
 
 		#endregion
 	}
