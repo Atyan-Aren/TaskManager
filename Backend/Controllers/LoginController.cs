@@ -26,21 +26,21 @@ namespace TaskManager.Controllers
 
 		[HttpPost]
 		[Route("Login")]
-		public async Task<ServiceResult> Login([FromBody]LoginDataModel loginData)
+		public async Task<ServiceResponse> Login([FromBody]LoginDataModel loginData)
 		{
 			return await _loginService.Login(loginData, HttpContext);
 		}
 
 		[HttpPost]
 		[Route("Register")]
-		public async Task<ServiceResult> Register([FromBody]LoginDataModel loginData)
+		public async Task<ServiceResponse> Register([FromBody]LoginDataModel loginData)
 		{
 			return await _loginService.Register(loginData, HttpContext);
 		}
 
 		[HttpPost]
 		[Route("Logout")]
-		public async Task<ServiceResult> Logout()
+		public async Task<ServiceResponse> Logout()
 		{
 			return await _loginService.Logout(HttpContext);
 		}

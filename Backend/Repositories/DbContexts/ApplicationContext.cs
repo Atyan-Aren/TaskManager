@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TaskManager.Models.DBModels;
 
 namespace TaskManager.Repositories.DbContexts
@@ -7,13 +6,18 @@ namespace TaskManager.Repositories.DbContexts
     public class ApplicationContext : DbContext
 	{
 		#region Properties: Public
+
 		public DbSet<UserModel> Users { get; set; }
+        public DbSet<TaskModel<UserModel>> Tasks { get; set; }
+        public DbSet<TaskCategoryModel> TaskCategories { get; set; }
+        public DbSet<TaskPriorityModel> TaskPriorities { get; set; }
+        public DbSet<TaskStatusModel> TaskStatuses { get; set; }
 
-		#endregion
+        #endregion
 
-		#region Constructors: Public
+        #region Constructors: Public
 
-		public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
+        public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
 		{
 			Database.EnsureCreated();
 		}

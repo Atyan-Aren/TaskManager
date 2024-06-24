@@ -86,7 +86,7 @@ namespace TaskManager.Services
 
 		#region Methods: Public
 
-		public async Task<ServiceResult> Login(LoginDataModel loginData, HttpContext httpContext)
+		public async Task<ServiceResponse> Login(LoginDataModel loginData, HttpContext httpContext)
 		{
 			var user = await _userRepository.GetUserByUsername(loginData.Username);
 			CheckUserIsExists(user);
@@ -94,10 +94,10 @@ namespace TaskManager.Services
 
 			SignIn(user, httpContext);
 
-			return new ServiceResult() { Success = true };
+			return new ServiceResponse() { Success = true };
 		}
 
-		public async Task<ServiceResult> Register(LoginDataModel loginData, HttpContext httpContext)
+		public async Task<ServiceResponse> Register(LoginDataModel loginData, HttpContext httpContext)
 		{
 			await CheckUserIsNotExists(loginData.Username);
 
@@ -106,13 +106,13 @@ namespace TaskManager.Services
 
 			SignIn(userModel, httpContext);
 
-            return new ServiceResult() { Success = true };
+            return new ServiceResponse() { Success = true };
         }
 
-		public async Task<ServiceResult> Logout(HttpContext httpContext)
+		public async Task<ServiceResponse> Logout(HttpContext httpContext)
 		{
 			await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return new ServiceResult() { Success = true };
+            return new ServiceResponse() { Success = true };
         }
 
 		#endregion

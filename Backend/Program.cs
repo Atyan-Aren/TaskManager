@@ -1,4 +1,9 @@
+using TaskManager.Interfaces.Repositories;
+using TaskManager.Interfaces.Services;
 using TaskManager.Middlewares;
+using TaskManager.Models.DBModels;
+using TaskManager.Repositories.DbContexts;
+using TaskManager.Services;
 using TaskManager.ServicesExtensions;
 
 namespace TaskManager
@@ -13,6 +18,8 @@ namespace TaskManager
 				.AddDBContext()
 				.AddAuthorizationServices();
 
+			builder.Services.AddScoped<Interfaces.Repositories.ILookupRepository<TaskCategoryModel>, TaskCategoryRepository>();
+			builder.Services.AddScoped<Interfaces.Services.ILookupService<TaskCategoryModel>, TaskCategoriesService>();
 			builder.Services.AddControllers();
 
 			var app = builder.Build();

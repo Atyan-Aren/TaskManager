@@ -48,10 +48,10 @@ namespace TaskManager.Services
 
 		#region Methods: Public
 
-		public async Task<ServiceResult> Login(LoginDataModel loginData, HttpContext httpContext)
+		public async Task<ServiceResponse> Login(LoginDataModel loginData, HttpContext httpContext)
 		{
 			var identityResult = await _signInManager.PasswordSignInAsync(loginData.Username, loginData.Password, true, false);
-			var result = new ServiceResult()
+			var result = new ServiceResponse()
 			{
 				Success = identityResult.Succeeded,
 				Message = identityResult.ToString()
@@ -64,12 +64,12 @@ namespace TaskManager.Services
 			return result;
 		}
 
-		public async Task<ServiceResult> Register(LoginDataModel loginData, HttpContext httpContext)
+		public async Task<ServiceResponse> Register(LoginDataModel loginData, HttpContext httpContext)
 		{
 			var user = CreateUserModel(loginData);
 			var identityResult = await _userManager.CreateAsync(user, loginData.Password);
 
-			var result = new ServiceResult()
+			var result = new ServiceResponse()
 			{
 				Success = identityResult.Succeeded,
 				Message = identityResult.ToString()
@@ -80,9 +80,9 @@ namespace TaskManager.Services
 			return result;
 		}
 
-		public async Task<ServiceResult> Logout(HttpContext httpContext)
+		public async Task<ServiceResponse> Logout(HttpContext httpContext)
 		{
-			var result = new ServiceResult();
+			var result = new ServiceResponse();
 			try
 			{
 				await _signInManager.SignOutAsync();

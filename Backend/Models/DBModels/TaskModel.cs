@@ -11,8 +11,8 @@ namespace TaskManager.Models.DBModels
         public DateTime RemindingTime { get; set; }
         public DateTime DueDate { get; set; }
         public TUser Author { get; set; }
-        public TaskPriorityModel TaskPriority { get; set; }
-        public TaskCategoryModel TaskCategory { get; set; }
-        public TaskStatusModel TaskStatus { get; set; }
+        public TaskPriorityModel? TaskPriority { get; set; }
+        public TaskCategoryModel? TaskCategory { get; set; }
+        public TaskStatusModel? TaskStatus { get; set; }
     }
 }
