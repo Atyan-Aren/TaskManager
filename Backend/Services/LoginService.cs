@@ -77,7 +77,7 @@ namespace TaskManager.Services
 				Password = _passwordService.GenerateHashedPassword(loginData.Password),
 				TelegramNickname = loginData.TelegramNickname,
 				CreatedDate = DateTime.UtcNow, // TODO: Autofill
-				UpdatedDate = DateTime.UtcNow,
+				ModifiedDate = DateTime.UtcNow,
 			};
 			return userModel;
 		}

@@ -28,8 +28,8 @@ namespace TaskManager.Repositories.DbContexts
             var category = new TaskCategoryModel()
             {
                 Name = name,
-                CreatedDate = DateTime.UtcNow,
-                UpdatedDate = DateTime.UtcNow,
+                //CreatedDate = DateTime.UtcNow,
+                //ModifiedDate = DateTime.UtcNow,
             };
             _applicationContext.TaskCategories.Add(category);
             var insertedCount = await _applicationContext.SaveChangesAsync();

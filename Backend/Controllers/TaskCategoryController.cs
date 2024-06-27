@@ -27,7 +27,7 @@ namespace TaskManager.Controllers
         #region Methods: Public
 
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         [Route("GetAll")]
         public async Task<ServiceResponse> GetAllTaskCategories()
         {
@@ -35,23 +35,23 @@ namespace TaskManager.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         [Route("GetById")]
         public async Task<ServiceResponse> GetTaskCategoryById([FromQuery] Guid id)
         {
-            return await GetTaskCategoryById(id);
+            return await _categoryService.GetTaskCategoryById(id);
         }
 
         [HttpPost]
-        [Authorize]
+        //[Authorize]
         [Route("Update")]
         public async Task<ServiceResponse> UpdateTaskCategory([FromBody] TaskCategoryModel categoryModel)
         {
-            return await UpdateTaskCategory(categoryModel);
+            return await _categoryService.UpdateTaskCategory(categoryModel);
         }
 
         [HttpPost]
-        [Authorize]
+        //[Authorize]
         [Route("Create")]
         public async Task<ServiceResponse> CreateCategory([FromBody] TaskCategoryModel categoryModel)
         {

@@ -22,16 +22,24 @@ namespace TaskManager.Repositories.DbContexts
 			Database.EnsureCreated();
 		}
 
-		#endregion
+        #endregion
 
-		#region Methods: Protected
+        #region Methods: Protected
 
-		//protected override void OnModelCreating(ModelBuilder modelBuilder)
-		//{
-		//	modelBuilder.Entity<BaseModel>().Property(model => model.CreatedDate).ValueGeneratedOnAdd();
-		//	modelBuilder.Entity<BaseModel>().Property(model => model.UpdatedDate).ValueGeneratedOnAddOrUpdate();
-		//}
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            ChangeTracker.Entries()
+                .Where(entity => entity.State == EntityState.Added || entity.State == EntityState.Modified)
+                .ToList().ForEach(entity =>
+                {
+                    if (entity.State == EntityState.Added)
+                        entity.Property("CreatedDate").CurrentValue = DateTime.UtcNow;
+                    entity.Property("ModifiedDate").CurrentValue = DateTime.UtcNow;
+                });
 
-		#endregion
-	}
+            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        #endregion
+    }
 }
