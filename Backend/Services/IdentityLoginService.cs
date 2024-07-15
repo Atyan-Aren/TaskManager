@@ -2,10 +2,11 @@
 using TaskManager.Interfaces.Services;
 using TaskManager.Models;
 using TaskManager.Models.DBModels;
+using TaskManager.Models.DTOs;
 
 namespace TaskManager.Services
 {
-	public class IdentityLoginService : ILoginService
+    public class IdentityLoginService : ILoginService
 	{
 		#region Fields
 
@@ -31,7 +32,7 @@ namespace TaskManager.Services
 			await _signInManager.SignInAsync(user,true);
 		}
 
-		private IdentityUserModel CreateUserModel(LoginDataModel loginData)
+		private IdentityUserModel CreateUserModel(UserModelDTO loginData)
 		{
 			var user = new IdentityUserModel()
 			{
@@ -48,7 +49,7 @@ namespace TaskManager.Services
 
 		#region Methods: Public
 
-		public async Task<ServiceResponse> Login(LoginDataModel loginData, HttpContext httpContext)
+		public async Task<ServiceResponse> Login(UserModelDTO loginData, HttpContext httpContext)
 		{
 			var identityResult = await _signInManager.PasswordSignInAsync(loginData.Username, loginData.Password, true, false);
 			var result = new ServiceResponse()
@@ -64,7 +65,7 @@ namespace TaskManager.Services
 			return result;
 		}
 
-		public async Task<ServiceResponse> Register(LoginDataModel loginData, HttpContext httpContext)
+		public async Task<ServiceResponse> Register(UserModelDTO loginData, HttpContext httpContext)
 		{
 			var user = CreateUserModel(loginData);
 			var identityResult = await _userManager.CreateAsync(user, loginData.Password);

@@ -6,10 +6,11 @@ using TaskManager.Interfaces.Repositories;
 using TaskManager.Interfaces.Services;
 using TaskManager.Models;
 using TaskManager.Models.DBModels;
+using TaskManager.Models.DTOs;
 
 namespace TaskManager.Services
 {
-	public class LoginService : ILoginService
+    public class LoginService : ILoginService
 	{
 		#region Fields
 
@@ -68,25 +69,11 @@ namespace TaskManager.Services
 
 		}
 
-		private UserModel CreateUserModel(LoginDataModel loginData)
-		{
-			var userModel = new UserModel()
-			{
-				Name = loginData.Username,
-				Email = loginData.Email,
-				Password = _passwordService.GenerateHashedPassword(loginData.Password),
-				TelegramNickname = loginData.TelegramNickname,
-				CreatedDate = DateTime.UtcNow, // TODO: Autofill
-				ModifiedDate = DateTime.UtcNow,
-			};
-			return userModel;
-		}
-
 		#endregion
 
 		#region Methods: Public
 
-		public async Task<ServiceResponse> Login(LoginDataModel loginData, HttpContext httpContext)
+		public async Task<ServiceResponse> Login(UserModelDTO loginData, HttpContext httpContext)
 		{
 			var user = await _userRepository.GetUserByUsername(loginData.Username);
 			CheckUserIsExists(user);
@@ -97,11 +84,11 @@ namespace TaskManager.Services
 			return new ServiceResponse() { Success = true };
 		}
 
-		public async Task<ServiceResponse> Register(LoginDataModel loginData, HttpContext httpContext)
+		public async Task<ServiceResponse> Register(UserModelDTO loginData, HttpContext httpContext)
 		{
 			await CheckUserIsNotExists(loginData.Username);
 
-			var userModel = CreateUserModel(loginData);
+			var userModel = loginData.Map();
 			await _userRepository.CreateUser(userModel);
 
 			SignIn(userModel, httpContext);

@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TaskManager.Interfaces.Services;
 using TaskManager.Models;
+using TaskManager.Models.DTOs;
 
 namespace TaskManager.Controllers
 {
-	[Route("Login")]
+    [Route("Login")]
 	public class LoginController : Controller
 	{
 		#region Fields
@@ -26,14 +27,14 @@ namespace TaskManager.Controllers
 
 		[HttpPost]
 		[Route("Login")]
-		public async Task<ServiceResponse> Login([FromBody]LoginDataModel loginData)
+		public async Task<ServiceResponse> Login([FromBody]UserModelDTO loginData)
 		{
 			return await _loginService.Login(loginData, HttpContext);
 		}
 
 		[HttpPost]
 		[Route("Register")]
-		public async Task<ServiceResponse> Register([FromBody]LoginDataModel loginData)
+		public async Task<ServiceResponse> Register([FromBody]UserModelDTO loginData)
 		{
 			return await _loginService.Register(loginData, HttpContext);
 		}
